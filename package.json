@@ -1,17 +1,28 @@
 {
     "$schema": "https://json.schemastore.org/package.json",
     "private": true,
-    "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite"
+        "dev": "next dev -p 3000",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "laravel:serve": "php artisan serve",
+        "dev:all": "concurrently \"npm run dev\" \"npm run laravel:serve\""
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.0.0",
-        "axios": "^1.11.0",
+        "@types/node": "^24.4.0",
+        "@types/react": "^19.1.13",
+        "@types/react-dom": "^19.1.9",
+        "autoprefixer": "^10.4.21",
         "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^2.0.0",
-        "tailwindcss": "^4.0.0",
-        "vite": "^7.0.4"
+        "postcss": "^8.5.6",
+        "tailwindcss": "^3.4.17",
+        "typescript": "^5.9.2"
+    },
+    "dependencies": {
+        "next": "^15.5.3",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "react-router-dom": "^6.29.0"
     }
 }

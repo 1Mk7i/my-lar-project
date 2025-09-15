@@ -28,3 +28,18 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+# IDEs
+/.fleet
+/.idea
+/.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# React/Vite/Next.js
+node_modules/
+dist/
+.vite/
+.next/
