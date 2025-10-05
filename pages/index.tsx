@@ -59,6 +59,19 @@ export default function Home() {
               Перейти до модуля
             </button>
           </div>
+
+
+          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+            <div className="text-4xl mb-4">📚</div>
+            <h3 className="text-xl font-semibold mb-2">Бібліотека</h3>
+            <p className="text-gray-600 mb-4">Перегляд та управління книгами</p>
+            <a
+              href="/books"
+              className="inline-block w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200"
+            >
+              Перейти до модуля
+            </a>
+          </div>
         </div>
       </div>
     </div>

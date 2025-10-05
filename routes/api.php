@@ -3,12 +3,14 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\BookController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 Route::get('/home', [HomeController::class, 'index']);
+Route::get('/books', [BookController::class, 'apiIndex']);
 
 // API документація
 Route::get('/docs', function () {
@@ -34,3 +36,4 @@ Route::get('/test-message', function () {
 
 // Підключення роутів модулів
 require __DIR__.'/modules/users.php';
+require __DIR__.'/modules/books.php';
