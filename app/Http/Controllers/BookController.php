@@ -3,134 +3,141 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\View as ViewFacade;
 
 class BookController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Get all books with optional filtering and sorting
      */
-    public function index(): View
+    public function apiIndex(Request $request): JsonResponse
     {
-        $books = Book::latest()->get();
-        return view('books.index', compact('books'));
+        try {
+            $query = Book::query();
+
+            // Search filter
+            if ($request->has('search') && $request->search) {
+                $query->search($request->search);
+            }
+
+            // Status filter
+            if ($request->has('status') && $request->status !== 'all') {
+                $query->where('is_available', $request->status === 'available');
+            }
+
+            // Language filter
+            if ($request->has('language') && $request->language !== 'all') {
+                $query->where('language', $request->language);
+            }
+
+            // Sorting
+            $sortBy = $request->get('sort_by', 'title');
+            $sortOrder = $request->get('sort_order', 'asc');
+
+            switch ($sortBy) {
+                case 'title':
+                    $query->orderBy('title', $sortOrder);
+                    break;
+                case 'author':
+                    $query->orderBy('author', $sortOrder);
+                    break;
+                case 'year':
+                    $query->orderBy('publication_year', $sortOrder === 'asc' ? 'desc' : 'asc');
+                    break;
+                case 'price':
+                    $query->orderBy('price', $sortOrder);
+                    break;
+                default:
+                    $query->orderBy('title', 'asc');
+            }
+
+            $books = $query->get();
+
+            $formattedBooks = $books->map(function ($book) {
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'description' => $book->description,
+                    'isbn' => $book->isbn,
+                    'year' => $book->publication_year,
+                    'cover_image' => $book->cover_image,
+                    'price' => (float) $book->price,
+                    'pages' => (int) $book->pages,
+                    'language' => $book->language,
+                    'status' => $book->status,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'books' => $formattedBooks,
+                'count' => $formattedBooks->count(),
+                'filters' => [
+                    'search' => $request->search,
+                    'status' => $request->status,
+                    'language' => $request->language,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Book API Index Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load books',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Get single book
      */
-    public function create(): View
+    public function apiShow($id): JsonResponse
     {
-        return view('books.create');
-    }
+        try {
+            $book = Book::find($id);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'publication_year' => 'required|integer|min:1000|max:' . (date('Y') + 1),
-            'isbn' => 'nullable|string|unique:books,isbn',
-            'price' => 'nullable|numeric|min:0',
-            'pages' => 'nullable|integer|min:1',
-            'cover_image' => 'nullable|string|max:255',
-            'is_available' => 'boolean'
-        ]);
+            if (!$book) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Book not found'
+                ], 404);
+            }
 
-        Book::create($validated);
+            $bookData = [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author,
+                'description' => $book->description,
+                'isbn' => $book->isbn,
+                'year' => $book->publication_year,
+                'cover_image' => $book->cover_image,
+                'price' => (float) $book->price,
+                'pages' => (int) $book->pages,
+                'language' => $book->language,
+                'status' => $book->status,
+                'created_at' => $book->created_at,
+                'updated_at' => $book->updated_at,
+            ];
 
-        return redirect()->route('books.index')
-            ->with('success', 'Книжку успішно додано!');
-    }
+            return response()->json([
+                'success' => true,
+                'book' => $bookData
+            ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Book $book): View
-    {
-        return view('books.show', compact('book'));
-    }
+        } catch (\Exception $e) {
+            \Log::error('Book API Show Error: ' . $e->getMessage());
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Book $book): View
-    {
-        return view('books.edit', compact('book'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Book $book): RedirectResponse
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'publication_year' => 'required|integer|min:1000|max:' . (date('Y') + 1),
-            'isbn' => 'nullable|string|unique:books,isbn,' . $book->id,
-            'price' => 'nullable|numeric|min:0',
-            'pages' => 'nullable|integer|min:1',
-            'cover_image' => 'nullable|string|max:255',
-            'is_available' => 'boolean'
-        ]);
-
-        $book->update($validated);
-
-        return redirect()->route('books.index')
-            ->with('success', 'Інформацію про книжку оновлено!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Book $book): RedirectResponse
-    {
-        $book->delete();
-
-        return redirect()->route('books.index')
-            ->with('success', 'Книжку успішно видалено!');
-    }
-
-    /**
-     * API method to get all books (optional)
-     */
-    public function apiIndex()
-    {
-        $books = Book::all();
-        return response()->json($books);
-    }
-
-    /**
-     * Search books by title or author
-     */
-    public function search(Request $request): View
-    {
-        $search = $request->get('search');
-        
-        $books = Book::where('title', 'like', "%{$search}%")
-            ->orWhere('author', 'like', "%{$search}%")
-            ->get();
-
-        return view('books.index', compact('books', 'search'));
-    }
-
-    /**
-     * Filter available books
-     */
-    public function available(): View
-    {
-        $books = Book::where('is_available', true)->get();
-        return view('books.index', compact('books'));
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load book',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

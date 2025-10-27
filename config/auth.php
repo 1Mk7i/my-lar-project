@@ -40,8 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        
+        'api' => [
+            'driver' => 'sanctum', // Переконайтесь, що використовується Sanctum
+            'provider' => 'users',
+        ],
     ],
-
     /*
     |--------------------------------------------------------------------------
     | User Providers

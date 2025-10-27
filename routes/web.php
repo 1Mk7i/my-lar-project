@@ -15,8 +15,9 @@ Route::get('/', function () {
     ]);
 });
 
+// Books resource routes
 Route::resource('books', BookController::class);
 
-// Додаткові маршрути
+// Additional books routes
 Route::get('books/search', [BookController::class, 'search'])->name('books.search');
 Route::get('books/available', [BookController::class, 'available'])->name('books.available');

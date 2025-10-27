@@ -25,3 +25,103 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+@layer base {
+  nav {
+    @apply flex justify-between items-center mb-6;
+  }
+  footer {
+    @apply mt-16 text-center text-gray-500;
+  }
+
+  label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500;
+  }
+  select {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900;
+  }
+  option {
+    @apply text-gray-900 bg-white;
+  }
+
+  h1 {
+    @apply text-4xl font-bold text-gray-900 mb-4;
+  }
+  h2 {
+    @apply text-2xl font-bold text-gray-900 mb-4;
+  }
+  h3 {
+    @apply text-xl text-gray-600 max-w-2xl mx-auto;
+  }
+}
+
+@layer components{
+  .title {
+    @apply text-lg font-semibold text-gray-900 mb-2 line-clamp-2 break-words;
+  }
+  .subtitle {
+    @apply text-gray-600 mb-2 break-words;
+  }
+  .description {
+    @apply text-sm text-gray-500 mb-4 line-clamp-3 break-words overflow-hidden;
+  }
+
+  .primary-text-lg{
+    @apply mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors;
+  }
+  .primary-text-md{
+    @apply text-blue-600 hover:text-blue-800 font-medium
+  }
+
+  .link {
+    @apply text-sm font-medium text-gray-700 hover:text-blue-600;
+  }
+
+  .primary-button{
+    @apply flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-center text-sm
+  }
+  .primary-button-lg{
+    @apply inline-block w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200;
+  }
+
+  .secondary-button {
+    @apply w-full block text-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 px-6 rounded-lg;
+  }
+  .secondary-button-sm {
+    @apply text-center border border-gray-300 text-gray-700 hover:bg-gray-300 font-bold py-3 px-6 rounded-lg;
+  }
+  .success-button {
+    @apply w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg mb-3;
+  }
+  .success-button-sm {
+    @apply flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 text-sm;
+  }
+  .unsuccess-button {
+    @apply w-full border border-red-300 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg mb-3;
+  }
+  
+  .tag {
+    @apply absolute top-2 right-2;
+  }
+  .tag-fill {
+    @apply px-2 py-1 text-xs font-medium rounded-sm;
+  }
+  .success-tag {
+    @apply bg-green-100 text-green-800 border border-green-200;
+  }
+  .unsuccess-tag {
+    @apply bg-red-100 text-red-800 border border-red-200;
+  }
+
+  .product-price{
+    @apply text-lg font-bold text-blue-600
+  }
+
+  .info-block{
+    @apply bg-white rounded-lg p-6 shadow-sm text-center
+  }
+
+}
