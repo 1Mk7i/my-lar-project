@@ -7,6 +7,10 @@ export { systemService } from './services/system.service'
 import { booksService } from './services/books.service'
 import { systemService } from './services/system.service'
 
+// Debug logging
+console.log('🔍 lib/api/index.ts - systemService:', systemService)
+console.log('🔍 lib/api/index.ts - booksService:', booksService)
+
 export const apiClient = {
   testConnection: () => systemService.testConnection(),
   getBooks: (params?: any) => booksService.getBooks(params),
