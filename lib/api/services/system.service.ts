@@ -21,3 +21,7 @@ export class SystemService extends BaseApiService {
 }
 
 export const systemService = new SystemService()
+
+// Debug logging
+console.log('🔍 system.service.ts - systemService created:', systemService)
+console.log('🔍 system.service.ts - testConnection method:', systemService.testConnection)

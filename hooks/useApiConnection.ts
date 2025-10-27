@@ -1,5 +1,11 @@
 import { useState, useCallback } from 'react'
-import { systemService } from '../lib/api'
+
+// Спробуємо прямий імпорт
+import { systemService } from '../lib/api/services/system.service'
+
+// Debug logging
+console.log('🔍 systemService imported directly:', systemService)
+console.log('🔍 systemService.testConnection:', systemService?.testConnection)
 
 type ConnectionStatus = 'idle' | 'testing' | 'connected' | 'failed'
 
