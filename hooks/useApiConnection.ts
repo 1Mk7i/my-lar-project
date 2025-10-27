@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { systemService } from '@/lib/api'
+import { systemService } from '../lib/api'
 
 type ConnectionStatus = 'idle' | 'testing' | 'connected' | 'failed'
 

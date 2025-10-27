@@ -1,5 +1,5 @@
 import React from 'react'
-import { Book } from '@/lib/api/types'
+import { Book } from '../../lib/api/types'
 import { BookCard } from './BookCard'
 
 interface BooksListProps {

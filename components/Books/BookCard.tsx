@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { Book } from '@/lib/api/types'
+import { Book } from '../../lib/api/types'
 
 interface BookCardProps {
   book: Book

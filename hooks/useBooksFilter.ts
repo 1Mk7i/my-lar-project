@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Book } from '@/lib/api/types'
+import { Book } from '../lib/api/types'
 
 type StatusFilter = 'all' | 'available' | 'out_of_stock'
 type SortBy = 'title' | 'author' | 'year' | 'price'
