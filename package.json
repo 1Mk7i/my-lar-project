@@ -6,7 +6,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "laravel:serve": "php artisan serve",
+        "laravel:serve": "./laravel-serve.sh",
         "dev:all": "concurrently \"npm run dev\" \"npm run laravel:serve\""
     },
     "devDependencies": {

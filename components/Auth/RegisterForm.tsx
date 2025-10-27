@@ -1,30 +1,47 @@
-// components/Auth/LoginForm.tsx
+// components/Auth/RegisterForm.tsx
 "use client";
 
 import { useState } from "react";
 import { apiClient } from "@/lib/api-client";
 
-interface LoginFormProps {
+interface RegisterFormProps {
     onSuccess?: () => void;
     onClose?: () => void;
-    onSwitchToRegister?: () => void;
+    onSwitchToLogin?: () => void;
 }
 
-export function LoginForm({
-    onSuccess,
-    onClose,
-    onSwitchToRegister,
-}: LoginFormProps) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+export function RegisterForm({ onSuccess, onClose, onSwitchToLogin }: RegisterFormProps) {
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!email || !password) {
+        if (!formData.name || !formData.email || !formData.password || !formData.password_confirmation) {
             setError("Будь ласка, заповніть всі поля");
+            return;
+        }
+
+        if (formData.password !== formData.password_confirmation) {
+            setError("Паролі не співпадають");
+            return;
+        }
+
+        if (formData.password.length < 8) {
+            setError("Пароль має містити щонайменше 8 символів");
             return;
         }
 
@@ -32,11 +49,11 @@ export function LoginForm({
         setError("");
 
         try {
-            console.log("🔐 Спроба входу...");
+            console.log("📝 Спроба реєстрації...");
 
-            const response = await apiClient.login({ email, password });
+            const response = await apiClient.register(formData);
 
-            console.log("✅ Успішний вхід:", response);
+            console.log("✅ Успішна реєстрація:", response);
 
             // Викликаємо callback успіху
             if (onSuccess) {
@@ -53,14 +70,19 @@ export function LoginForm({
                 window.location.reload();
             }, 1000);
         } catch (err: any) {
-            console.error("❌ Помилка входу:", err);
+            console.error("❌ Помилка реєстрації:", err);
 
-            let errorMessage = "Помилка авторизації";
+            let errorMessage = "Помилка реєстрації";
 
             if (err.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err.response?.data?.error) {
                 errorMessage = err.response.data.error;
+            } else if (err.response?.data?.errors) {
+                // Laravel validation errors
+                const errors = err.response.data.errors;
+                const firstError = Object.values(errors)[0] as string[];
+                errorMessage = firstError[0];
             } else if (err.message) {
                 errorMessage = err.message;
             }
@@ -73,14 +95,14 @@ export function LoginForm({
 
     return (
         <div className="w-full max-w-md mx-auto">
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleRegister} className="space-y-6">
                 {/* Заголовок */}
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-gray-900">
-                        Вхід в систему
+                        Реєстрація
                     </h2>
                     <p className="mt-2 text-sm text-gray-600">
-                        Увійдіть у свій обліковий запис
+                        Створіть новий обліковий запис
                     </p>
                 </div>
 
@@ -96,6 +118,27 @@ export function LoginForm({
                     </div>
                 )}
 
+                {/* Поле імені */}
+                <div>
+                    <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Повне ім'я
+                    </label>
+                    <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="Ваше повне ім'я"
+                        required
+                        disabled={loading}
+                    />
+                </div>
+
                 {/* Поле email */}
                 <div>
                     <label
@@ -106,9 +149,10 @@ export function LoginForm({
                     </label>
                     <input
                         id="email"
+                        name="email"
                         type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={formData.email}
+                        onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         placeholder="your@email.com"
                         required
@@ -126,29 +170,52 @@ export function LoginForm({
                     </label>
                     <input
                         id="password"
+                        name="password"
                         type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={formData.password}
+                        onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        placeholder="Ваш пароль"
+                        placeholder="Мінімум 8 символів"
+                        required
+                        minLength={8}
+                        disabled={loading}
+                    />
+                </div>
+
+                {/* Поле підтвердження пароля */}
+                <div>
+                    <label
+                        htmlFor="password_confirmation"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Підтвердити пароль
+                    </label>
+                    <input
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        type="password"
+                        value={formData.password_confirmation}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="Повторіть пароль"
                         required
                         disabled={loading}
                     />
                 </div>
 
-                {/* Кнопка входу */}
+                {/* Кнопка реєстрації */}
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                    className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
                     {loading ? (
                         <div className="flex items-center justify-center">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                            Вхід...
+                            Реєстрація...
                         </div>
                     ) : (
-                        "Увійти"
+                        "Зареєструватися"
                     )}
                 </button>
 
@@ -156,10 +223,10 @@ export function LoginForm({
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                     <button
                         type="button"
-                        onClick={onSwitchToRegister}
+                        onClick={onSwitchToLogin}
                         className="text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium"
                     >
-                        Немає акаунта? Зареєструватися
+                        Вже маєте акаунт? Увійти
                     </button>
 
                     <button
@@ -169,17 +236,6 @@ export function LoginForm({
                     >
                         Скасувати
                     </button>
-                </div>
-
-                {/* Демо дані */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">
-                        Демо дані для тесту:
-                    </h3>
-                    <div className="text-xs text-gray-600 space-y-1">
-                        <p>Email: admin@example.com</p>
-                        <p>Password: password</p>
-                    </div>
                 </div>
             </form>
         </div>
