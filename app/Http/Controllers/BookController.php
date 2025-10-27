@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class BookController extends Controller
 {
@@ -85,15 +84,12 @@ class BookController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Book API Index Error: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString()
-            ]);
+            \Log::error('Book API Index Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load books',
-                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -135,16 +131,12 @@ class BookController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Book API Show Error: ' . $e->getMessage(), [
-                'book_id' => $id,
-                'exception' => $e,
-                'trace' => $e->getTraceAsString()
-            ]);
+            \Log::error('Book API Show Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load book',
-                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'message' => $e->getMessage()
             ], 500);
         }
     }
