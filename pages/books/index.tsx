@@ -3,14 +3,14 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { useBooks } from '@/hooks/useBooks'
-import { useBooksFilter } from '@/hooks/useBooksFilter'
-import { useApiConnection } from '@/hooks/useApiConnection'
+import { useBooks } from '../../hooks/useBooks'
+import { useBooksFilter } from '../../hooks/useBooksFilter'
+import { useApiConnection } from '../../hooks/useApiConnection'
 import { 
   BooksFilter, 
   BooksList, 
   ConnectionStatus 
-} from '@/components/Books'
+} from '../../components/Books'
 
 export default function BooksPage() {
   const { connectionStatus, connectionError, testConnection } = useApiConnection()
@@ -97,4 +97,3 @@ export default function BooksPage() {
     </div>
   )
 }
-

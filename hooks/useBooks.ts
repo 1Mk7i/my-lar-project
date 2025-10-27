@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { booksService } from '@/lib/api'
-import { Book } from '@/lib/api/types'
+import { booksService } from '../lib/api'
+import { Book } from '../lib/api/types'
 
 interface UseBooksOptions {
   autoLoad?: boolean
