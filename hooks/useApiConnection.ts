@@ -1,11 +1,20 @@
 import { useState, useCallback } from 'react'
+import axios from 'axios'
 
-// Спробуємо прямий імпорт
-import { systemService } from '../lib/api/services/system.service'
-
-// Debug logging
-console.log('🔍 systemService imported directly:', systemService)
-console.log('🔍 systemService.testConnection:', systemService?.testConnection)
+// Тимчасово створимо простий systemService прямо тут
+const tempSystemService = {
+  async testConnection() {
+    console.log('🔧 Тестування базового підключення...')
+    try {
+      const response = await axios.get('http://localhost:8000/api/test')
+      console.log('✅ Підключення успішне:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ Тест підключення не вдався:', error)
+      throw error
+    }
+  }
+}
 
 type ConnectionStatus = 'idle' | 'testing' | 'connected' | 'failed'
 
@@ -20,7 +29,7 @@ export function useApiConnection() {
       
       console.log('🔧 Тестування підключення до API...')
       
-      const response = await systemService.testConnection()
+      const response = await tempSystemService.testConnection()
       console.log('✅ Підключення успішне:', response)
       
       setConnectionStatus('connected')
