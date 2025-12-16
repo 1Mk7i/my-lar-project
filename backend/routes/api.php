@@ -6,7 +6,10 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\GenreApiController;
 use App\Http\Controllers\BookApiController;
 use App\Http\Controllers\AuthController; 
-use App\Http\Controllers\CommentController; // Переконайтеся, що це правильний контролер
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +61,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart']);
     Route::delete('/cart/items/{itemId}', [CartController::class, 'removeItem']);
     Route::patch('/cart/items/{itemId}', [CartController::class, 'updateQuantity']);
+    
+    // User profile routes
+    Route::get('/user', [UserController::class, 'show']);
+    Route::put('/user/profile', [UserController::class, 'updateProfile']);
+    Route::put('/user/password', [UserController::class, 'updatePassword']);
+    Route::post('/user/avatar', [UserController::class, 'uploadAvatar']);
+    Route::delete('/user', [UserController::class, 'destroy']);
+    
+    // Admin routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/users', [AdminController::class, 'getUsers']);
+        Route::get('/roles', [AdminController::class, 'getRoles']);
+        Route::get('/stats', [AdminController::class, 'getStats']);
+        Route::put('/users/{user}', [AdminController::class, 'updateUser']);
+        Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
+    });
 });

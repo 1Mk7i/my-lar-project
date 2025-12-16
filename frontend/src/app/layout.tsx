@@ -1,9 +1,8 @@
 // app/layout.tsx
 
-import ThemeRegistry from "@/components/ThemeRegistry";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { ThemeRegistry, Header, Footer } from "@/components";
 import { AuthProvider } from "@/context/AuthContext"; // <-- Імпортуємо провайдер
+import { Box } from "@mui/material";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,9 +11,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeRegistry>
           {/* Обгортаємо весь UI в AuthProvider */}
           <AuthProvider> 
-            <Header />
-            <main>{children}</main>
-            <Footer />
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              minHeight: '100vh',
+              backgroundColor: 'background.default'
+            }}>
+              <Header />
+              <Box component="main" sx={{ flexGrow: 1 }}>
+                {children}
+              </Box>
+              <Footer />
+            </Box>
           </AuthProvider>
         </ThemeRegistry>
       </body>

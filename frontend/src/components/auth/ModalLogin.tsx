@@ -52,36 +52,60 @@ export default function ModalLogin({ open, onClose, onSuccess }: Props) {
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={{ 
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
-        bgcolor: 'background.paper', p: 4, width: 350, borderRadius: 1 
+        position: 'absolute', 
+        top: '50%', 
+        left: '50%', 
+        transform: 'translate(-50%, -50%)', 
+        bgcolor: 'background.paper', 
+        p: 4, 
+        width: { xs: '90%', sm: 400 },
+        borderRadius: 3,
+        boxShadow: 24,
+        outline: 'none'
       }}>
-        <Typography variant="h6" gutterBottom>Увійти</Typography>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, textAlign: 'center' }}>
+          Увійти до акаунту
+        </Typography>
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         
         <TextField 
           label="Email" 
           type="email"
-          fullWidth margin="normal" 
+          fullWidth 
+          margin="normal" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          sx={{ mb: 2 }}
         />
         <TextField 
           label="Пароль" 
           type="password" 
-          fullWidth margin="normal" 
+          fullWidth 
+          margin="normal" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => {
               if (e.key === 'Enter' && !isSubmitting) handleSubmit();
           }}
+          sx={{ mb: 3 }}
         />
         <Button 
           variant="contained" 
           fullWidth 
           onClick={handleSubmit} 
           disabled={isSubmitting}
-          sx={{ mt: 2 }}
+          size="large"
+          sx={{ 
+            mt: 2,
+            py: 1.5,
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            boxShadow: 3,
+            '&:hover': {
+              boxShadow: 5
+            }
+          }}
         >
           {isSubmitting ? 'Завантаження...' : 'Увійти'}
         </Button>

@@ -1,17 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CircularProgress, Alert, Box, Pagination } from "@mui/material"; 
-import BookGrid from "@/components/BookGrid";
-import SearchFilter from "@/components/SearchFilter";
+import { CircularProgress, Alert, Box, Pagination, Typography } from "@mui/material"; 
+import { BookGrid, SearchFilter } from "@/components";
 import api from "@/lib/api";
-import { Book, Genre, Publisher } from "@/types";
+import { Book, Genre, Publisher, PaginatedResponse } from "@/types";
+import { PAGINATION } from "@/constants";
 
-interface PaginatedResponse<T> {
-  current_page: number;
-  data: T[];
-  last_page: number;
-}
 type BooksState = PaginatedResponse<Book> | null;
 
 interface Filters {
@@ -28,13 +23,14 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   const [currentFilters, setCurrentFilters] = useState<Filters>({});
+  const [itemsPerPage, setItemsPerPage] = useState<number>(PAGINATION.DEFAULT_ITEMS_PER_PAGE);
 
-  const fetchBooks = (filters: Filters, page: number = 1) => {
+  const fetchBooks = (filters: Filters, page: number = 1, perPage: number = itemsPerPage) => {
     setLoading(true);
     setError(null);
     setCurrentFilters(filters);
 
-    const params: Record<string, any> = { page };
+    const params: Record<string, any> = { page, per_page: perPage };
     if (filters.query) params.query = filters.query;
     if (filters.genre_id) params.genre_id = filters.genre_id;
     if (filters.publisher_id) params.publisher_id = filters.publisher_id;
@@ -49,6 +45,11 @@ export default function Home() {
       })
       .finally(() => setLoading(false));
   }
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    fetchBooks(currentFilters, 1, items);
+  };
 
   useEffect(() => {
     Promise.all([
@@ -70,11 +71,11 @@ export default function Home() {
 
   const handleSearch = (query: string, genreId?: number, publisherId?: number) => {
     const filters: Filters = { query, genre_id: genreId, publisher_id: publisherId };
-    fetchBooks(filters, 1);
+    fetchBooks(filters, 1, itemsPerPage);
   };
   
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    fetchBooks(currentFilters, page);
+    fetchBooks(currentFilters, page, itemsPerPage);
   };
 
 
@@ -95,39 +96,64 @@ export default function Home() {
   const lastPage = paginatedBooks?.last_page || 1;
   
   return (
-    <div>
+    <Box sx={{ minHeight: '100vh' }}>
       <SearchFilter
         genres={genres}
         publishers={publishers}
         onSearch={handleSearch}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={handleItemsPerPageChange}
       />
       
       {/* Компонент пагінації (зверху) */}
       {lastPage > 1 && (
-        <Box display="flex" justifyContent="center" mt={4} mb={4}>
+        <Box display="flex" justifyContent="center" mt={2} mb={4}>
           <Pagination
             count={lastPage}
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
+            size="large"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                fontSize: '1.1rem'
+              }
+            }}
           />
         </Box>
       )}
 
       {/* Передаємо лише масив книг */}
-      <BookGrid books={booksToDisplay} /> 
+      {booksToDisplay.length > 0 ? (
+        <BookGrid books={booksToDisplay} />
+      ) : (
+        <Box sx={{ textAlign: 'center', mt: 10, p: 4 }}>
+          <Typography variant="h5" color="text.secondary">
+            Книги не знайдено
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+            Спробуйте змінити параметри пошуку
+          </Typography>
+        </Box>
+      )}
       
       {/* Компонент пагінації (знизу) */}
       {lastPage > 1 && (
-        <Box display="flex" justifyContent="center" mt={4} mb={4}>
+        <Box display="flex" justifyContent="center" mt={6} mb={4}>
           <Pagination
             count={lastPage}
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
+            size="large"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                fontSize: '1.1rem'
+              }
+            }}
           />
         </Box>
       )}
-    </div>
+    </Box>
   );
 }

@@ -12,14 +12,14 @@ import {
   IconButton, 
   Badge 
 } from "@mui/material"; 
-import { useState } from "react";
-import ModalLogin from "./ModalLogin";
-import ModalRegister from "./ModalRegister";
+import React, { useState } from "react";
+import ModalLogin from "../auth/ModalLogin";
+import ModalRegister from "../auth/ModalRegister";
 import { useAuth } from "@/context/AuthContext"; 
 import Link from 'next/link';
 import { useRouter } from "next/navigation"; 
 import api from "@/lib/api";
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // 🚩 Імпортуємо іконку кошика
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 export default function Header() {
   const [loginOpen, setLoginOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function Header() {
     return (
         <Box display="flex" alignItems="center" gap={1}>
             
-            {/* 🚩 КНОПКА КОШИКА */}
+            {/* КНОПКА КОШИКА */}
             <Link href="/cart" passHref>
                 <IconButton color="inherit" title="Кошик" sx={{ mr: 1 }}>
                     <ShoppingCartIcon />
@@ -129,12 +129,20 @@ export default function Header() {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
+                <MenuItem onClick={() => { router.push('/profile'); handleMenuClose(); }}>
+                    Профіль
+                </MenuItem>
                 {canCreateBook && (
                     <MenuItem onClick={handleCreateBook}>
                         Створити книгу
                     </MenuItem>
                 )}
-                <MenuItem onClick={() => router.push('/cart')}>
+                {user?.role?.id === 3 && (
+                    <MenuItem onClick={() => { router.push('/admin'); handleMenuClose(); }}>
+                        Адмін-панель
+                    </MenuItem>
+                )}
+                <MenuItem onClick={() => { router.push('/cart'); handleMenuClose(); }}>
                     Мій кошик
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>

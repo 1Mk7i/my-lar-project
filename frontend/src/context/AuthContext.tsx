@@ -4,7 +4,9 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types'; 
-import api from '@/lib/api'; 
+import api from '@/lib/api';
+import { STORAGE_KEYS } from '@/constants';
+import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils'; 
 
 const isServer = typeof window === 'undefined';
 
@@ -35,8 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Ініціалізація: Завантаження токена та користувача з Local Storage
   useEffect(() => {
     if (!isServer) {
-        const storedToken = localStorage.getItem('authToken');
-        const storedUser = localStorage.getItem('user');
+        const storedToken = getLocalStorage(STORAGE_KEYS.AUTH_TOKEN);
+        const storedUser = getLocalStorage(STORAGE_KEYS.USER);
 
         if (storedToken) {
             setToken(storedToken);
@@ -47,8 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setUser(JSON.parse(storedUser));
                 } catch (e) {
                     console.error("Failed to parse stored user data:", e);
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('user');
+                    removeLocalStorage(STORAGE_KEYS.AUTH_TOKEN);
+                    removeLocalStorage(STORAGE_KEYS.USER);
                     delete api.defaults.headers.common['Authorization'];
                 }
             }
@@ -66,17 +68,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!isAuthInitialized || isServer) return; 
 
     if (token) {
-      localStorage.setItem('authToken', token);
+      setLocalStorage(STORAGE_KEYS.AUTH_TOKEN, token);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`; 
     } else {
-      localStorage.removeItem('authToken');
+      removeLocalStorage(STORAGE_KEYS.AUTH_TOKEN);
       delete api.defaults.headers.common['Authorization'];
     }
     
     if (user) {
-        localStorage.setItem('user', JSON.stringify(user)); 
+        setLocalStorage(STORAGE_KEYS.USER, JSON.stringify(user)); 
     } else {
-        localStorage.removeItem('user');
+        removeLocalStorage(STORAGE_KEYS.USER);
     }
     
   }, [token, user, isAuthInitialized]);

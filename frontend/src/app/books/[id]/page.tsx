@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import { useParams, notFound } from "next/navigation";
 import { Book } from "@/types";
-import { Typography, Button, Box, CircularProgress, Alert, Snackbar } from "@mui/material";
+import { Typography, Button, Box, CircularProgress, Alert, Snackbar, Chip } from "@mui/material";
 import { useAuth } from "@/context/AuthContext"; 
 import Link from "next/link"; 
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CreateIcon from '@mui/icons-material/Create';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import CommentSection from "@/components/CommentSection";
+import { CommentSection } from "@/components";
 import api from "@/lib/api";
 
 // Індикатор статусу користувача
@@ -62,7 +62,12 @@ export default function BookPage() {
         });
         setSnackbar({ open: true, message: "Додано до кошика!", severity: "success" });
     } catch (err: any) {
-        setSnackbar({ open: true, message: "Помилка додавання.", severity: "error" });
+        console.error("Помилка додавання до кошика:", err);
+        const errorMessage = err.response?.data?.message || 
+                            err.response?.data?.error || 
+                            err.message || 
+                            "Помилка додавання до кошика";
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
     } finally {
         setAddingToCart(false);
     }
@@ -74,7 +79,7 @@ export default function BookPage() {
   const canEdit = user?.role?.id === 3 || (user?.role?.id === 2 && book.author?.user?.id === user?.id);
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: '1200px', mx: 'auto' }}>
       <UserStatusIndicator user={user} bookAuthorId={book.author?.user?.id} />
       
       {canEdit && (
@@ -89,40 +94,108 @@ export default function BookPage() {
       <Box sx={{ 
         display: 'grid', 
         gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, 
-        gap: 4 
+        gap: 4,
+        mb: 6
       }}>
         {/* Обкладинка */}
         <Box sx={{ textAlign: 'center' }}>
-          <img
+          <Box
+            component="img"
             src={book.cover || "/placeholder.png"}
             alt={book.title}
-            style={{ width: '100%', maxWidth: '350px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+            sx={{ 
+              width: '100%', 
+              maxWidth: '400px', 
+              borderRadius: 3, 
+              boxShadow: 6,
+              transition: 'transform 0.3s ease',
+              '&:hover': {
+                transform: 'scale(1.02)'
+              }
+            }}
           />
         </Box>
 
         {/* Інформація */}
         <Box>
-          <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>{book.title}</Typography>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            Автор: {book.author?.user?.name || "Невідомий"}
+          <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2, color: 'primary.main' }}>
+            {book.title}
           </Typography>
-          <Typography variant="body1" sx={{ my: 3, lineHeight: 1.8 }}>{book.description}</Typography>
-          <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mb: 3 }}>{book.price} грн</Typography>
           
-          {user ? (
-            <Button 
-                variant="contained" 
-                size="large" 
-                onClick={handleAddToCart}
-                disabled={addingToCart}
-                startIcon={addingToCart ? <CircularProgress size={20} color="inherit" /> : <ShoppingCartIcon />}
-                sx={{ px: 6, py: 1.5 }}
-            >
-              Додати до кошика
-            </Button>
-          ) : (
-            <Alert severity="info">Увійдіть, щоб купувати книги.</Alert>
-          )}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              <strong>Автор:</strong> {book.author?.user?.name || "Невідомий"}
+            </Typography>
+            {book.year && (
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                <strong>Рік видання:</strong> {book.year}
+              </Typography>
+            )}
+            {book.publisher && (
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                <strong>Видавництво:</strong> {book.publisher.name}
+              </Typography>
+            )}
+            {book.genres && book.genres.length > 0 && (
+              <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {book.genres.map(genre => (
+                  <Chip 
+                    key={genre.id} 
+                    label={genre.name} 
+                    size="small" 
+                    color="primary"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
+          
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              my: 3, 
+              lineHeight: 1.8,
+              fontSize: '1.1rem',
+              color: 'text.primary'
+            }}
+          >
+            {book.description || 'Опис відсутній'}
+          </Typography>
+          
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mb: 3 }}>
+              {book.price || 0} грн
+            </Typography>
+            
+            {user ? (
+              <Button 
+                  variant="contained" 
+                  size="large" 
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  startIcon={addingToCart ? <CircularProgress size={20} color="inherit" /> : <ShoppingCartIcon />}
+                  sx={{ 
+                    px: 6, 
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
+                    boxShadow: 4,
+                    '&:hover': {
+                      boxShadow: 6,
+                      transform: 'translateY(-2px)',
+                      transition: 'all 0.3s ease'
+                    }
+                  }}
+              >
+                {addingToCart ? 'Додавання...' : 'Додати до кошика'}
+              </Button>
+            ) : (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Увійдіть, щоб купувати книги.
+              </Alert>
+            )}
+          </Box>
         </Box>
       </Box>
 

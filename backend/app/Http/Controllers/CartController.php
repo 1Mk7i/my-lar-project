@@ -45,14 +45,22 @@ class CartController extends Controller
 
         if ($cartItem) {
             $cartItem->increment('quantity', $request->quantity);
+            $cartItem->load('book');
         } else {
-            $cart->items()->create([
+            $cartItem = $cart->items()->create([
                 'book_id' => $request->book_id,
                 'quantity' => $request->quantity
             ]);
+            $cartItem->load('book');
         }
 
-        return response()->json(['message' => 'Товар додано до кошика']);
+        // Завантажуємо всі items з книгами для повернення
+        $cart->load(['items.book']);
+
+        return response()->json([
+            'message' => 'Товар додано до кошика',
+            'cart' => $cart
+        ]);
     }
 
     public function removeItem($itemId)
@@ -64,5 +72,29 @@ class CartController extends Controller
         }
 
         return response()->json(['message' => 'Товар видалено']);
+    }
+
+    public function updateQuantity(Request $request, $itemId)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $cart = Cart::where('user_id', Auth::id())->first();
+        
+        if (!$cart) {
+            return response()->json(['message' => 'Кошик не знайдено'], 404);
+        }
+
+        $cartItem = $cart->items()->where('id', $itemId)->first();
+        
+        if (!$cartItem) {
+            return response()->json(['message' => 'Товар не знайдено в кошику'], 404);
+        }
+
+        $cartItem->update(['quantity' => $request->quantity]);
+        $cartItem->load('book');
+
+        return response()->json(['message' => 'Кількість оновлено', 'item' => $cartItem]);
     }
 }

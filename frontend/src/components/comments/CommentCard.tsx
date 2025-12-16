@@ -1,12 +1,14 @@
 // src/components/CommentCard.tsx
 
+"use client";
+
 import React, { useState } from "react"; 
 import { Comment } from "@/types";
 import { Box, Paper, Typography, Avatar, Button, Rating } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CreateIcon from '@mui/icons-material/Create';
-import CommentForm from "./CommentForm"; // 🚩 ІМПОРТ: Форма для редагування
+import CommentForm from "./CommentForm";
 
 interface CommentCardProps {
     comment: Comment;
@@ -85,7 +87,23 @@ export default function CommentCard({ comment, currentUserId, currentUserRoleId,
 
     // Режим відображення коментаря
     return (
-        <Paper elevation={1} sx={{ p: 2, display: 'flex', gap: 2 }}>
+        <Paper 
+            elevation={2} 
+            sx={{ 
+                p: 3, 
+                display: 'flex', 
+                gap: 3,
+                borderRadius: 2,
+                backgroundColor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                    boxShadow: 4,
+                    borderColor: 'primary.main'
+                }
+            }}
+        >
             
             {/* Ліва колонка: Аватар та Автор */}
             <Box sx={{ flexShrink: 0, textAlign: 'center', width: '80px' }}>

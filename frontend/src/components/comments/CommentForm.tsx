@@ -1,5 +1,7 @@
 // src/components/CommentForm.tsx
 
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { Box, TextField, Button, Rating, Typography, Paper } from "@mui/material";
 
@@ -38,8 +40,26 @@ export default function CommentForm({
     };
 
     return (
-        <Paper elevation={isEditing ? 3 : 1} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
+        <Paper 
+            elevation={isEditing ? 3 : 2} 
+            sx={{ 
+                p: 3, 
+                mb: 3,
+                borderRadius: 2,
+                backgroundColor: 'background.paper',
+                border: isEditing ? '2px solid' : '1px solid',
+                borderColor: isEditing ? 'primary.main' : 'divider'
+            }}
+        >
+            <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{
+                    fontWeight: 'bold',
+                    color: 'primary.main',
+                    mb: 2
+                }}
+            >
                 {isEditing ? "Редагувати коментар" : "Залишити коментар та відгук"}
             </Typography>
             <form onSubmit={handleSubmit}>
@@ -87,6 +107,14 @@ export default function CommentForm({
                         variant="contained"
                         color="primary"
                         disabled={loading || content.trim().length === 0}
+                        sx={{
+                            px: 3,
+                            fontWeight: 'bold',
+                            boxShadow: 2,
+                            '&:hover': {
+                                boxShadow: 4
+                            }
+                        }}
                     >
                         {loading ? 'Надсилання...' : (isEditing ? 'Зберегти зміни' : 'Опублікувати')}
                     </Button>

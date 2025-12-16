@@ -14,19 +14,11 @@ class CommentController extends Controller
 
     /**
      * Отримання коментарів для конкретної книги.
-     * 🚩 ВИПРАВЛЕНО: $bookId -> $book
+     * Використовуємо Route Model Binding для автоматичного резолвування Book
      */
-    public function index($book): JsonResponse
+    public function index(Book $book): JsonResponse
     {
-        // 🚩 ВИПРАВЛЕНО: Оскільки ми використовуємо $book (який має бути {book} у маршруті),
-        // Laravel має автоматично перетворити його на ID. 
-        // Якщо ви використовуєте Route Model Binding, цей рядок не потрібен або повинен виглядати як $book->id.
-        $bookId = $book; // Якщо $book є ID (без Route Model Binding)
-        
-        // Якщо ви використовуєте Route Model Binding (CommentController@index(Book $book)), 
-        // використовуйте: $bookId = $book->id;
-        
-        $comments = Comment::where('book_id', $bookId)
+        $comments = $book->comments()
             ->with(['user.role', 'user.author']) 
             ->orderBy('created_at', 'desc')
             ->paginate(5); 
@@ -36,16 +28,10 @@ class CommentController extends Controller
 
     /**
      * Створення нового коментаря.
-     * 🚩 ВИПРАВЛЕНО: $bookId -> $book
+     * Використовуємо Route Model Binding для автоматичного резолвування Book
      */
-    public function store(Request $request, $book): JsonResponse
+    public function store(Request $request, Book $book): JsonResponse
     {
-        // Якщо $book є ID:
-        $bookModel = Book::findOrFail($book); 
-        
-        // Якщо ви використовуєте Route Model Binding:
-        // $bookModel = $book;
-
         $user = $request->user();
 
         if (!$user) {
@@ -63,7 +49,7 @@ class CommentController extends Controller
 
         $data = $validator->validated();
 
-        $comment = $bookModel->comments()->create([
+        $comment = $book->comments()->create([
             'user_id' => $user->id,
             'content' => $data['content'],
             'rating' => $data['rating'] ?? null,
@@ -76,20 +62,22 @@ class CommentController extends Controller
 
     /**
      * Оновлення коментаря (Тільки власник).
-     * 🚩 ВИПРАВЛЕНО: $bookId -> $book, $commentId -> $comment
+     * Використовуємо Route Model Binding для автоматичного резолвування Book та Comment
      */
-    public function update(Request $request, $book, $comment): JsonResponse
+    public function update(Request $request, Book $book, Comment $comment): JsonResponse
     {
-        // Якщо використовується Route Model Binding, $comment буде об'єктом Comment,
-        // і цей рядок не потрібен: $comment = Comment::findOrFail($commentId);
-        $commentModel = Comment::findOrFail($comment); // Якщо $comment є ID
         $user = $request->user();
 
         if (!$user) {
             return response()->json(['message' => 'Необхідна автентифікація.'], 401);
         }
         
-        if ($commentModel->user_id !== $user->id) {
+        // Перевіряємо, що коментар належить книзі
+        if ($comment->book_id !== $book->id) {
+            return response()->json(['message' => 'Коментар не належить цій книзі.'], 404);
+        }
+        
+        if ($comment->user_id !== $user->id) {
             return response()->json(['message' => 'Ви можете редагувати лише власні коментарі.'], 403);
         }
 
@@ -102,33 +90,37 @@ class CommentController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
         
-        $commentModel->update($validator->validated());
-        $commentModel->load(['user.role', 'user.author']);
+        $comment->update($validator->validated());
+        $comment->load(['user.role', 'user.author']);
 
-        return response()->json($commentModel);
+        return response()->json($comment);
     }
 
     /**
      * Видалення коментаря (Власник або Адмін).
-     * 🚩 ВИПРАВЛЕНО: $bookId -> $book, $commentId -> $comment
+     * Використовуємо Route Model Binding для автоматичного резолвування Book та Comment
      */
-    public function destroy(Request $request, $book, $comment): JsonResponse
+    public function destroy(Request $request, Book $book, Comment $comment): JsonResponse
     {
-        $commentModel = Comment::findOrFail($comment); // Якщо $comment є ID
         $user = $request->user();
 
         if (!$user) {
             return response()->json(['message' => 'Необхідна автентифікація.'], 401);
         }
         
+        // Перевіряємо, що коментар належить книзі
+        if ($comment->book_id !== $book->id) {
+            return response()->json(['message' => 'Коментар не належить цій книзі.'], 404);
+        }
+        
         $isAdmin = $user->role_id === self::ADMIN_ROLE_ID;
-        $isOwner = $commentModel->user_id === $user->id;
+        $isOwner = $comment->user_id === $user->id;
 
         if (!$isAdmin && !$isOwner) {
             return response()->json(['message' => 'Недостатньо прав для видалення цього коментаря.'], 403);
         }
 
-        $commentModel->delete();
+        $comment->delete();
 
         return response()->json(['message' => 'Коментар успішно видалено.'], 200);
     }

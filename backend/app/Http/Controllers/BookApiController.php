@@ -42,7 +42,11 @@ class BookApiController extends Controller
             $books->where('publisher_id', $publisherId);
         }
         
-        $books = $books->orderBy('title', 'asc')->paginate(10); 
+        // Отримуємо кількість елементів на сторінці з параметра, за замовчуванням 10
+        $perPage = $request->input('per_page', 10);
+        $perPage = min(max((int)$perPage, 1), 100); // Обмежуємо від 1 до 100
+        
+        $books = $books->orderBy('title', 'asc')->paginate($perPage); 
         
         return response()->json($books);
     }

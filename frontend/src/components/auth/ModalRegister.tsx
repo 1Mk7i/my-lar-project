@@ -71,38 +71,79 @@ export default function ModalRegister({ open, onClose, onSuccess }: Props) {
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={{ 
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
-        bgcolor: 'background.paper', p: 4, width: 350, borderRadius: 1 
+        position: 'absolute', 
+        top: '50%', 
+        left: '50%', 
+        transform: 'translate(-50%, -50%)', 
+        bgcolor: 'background.paper', 
+        p: 4, 
+        width: { xs: '90%', sm: 400 },
+        borderRadius: 3,
+        boxShadow: 24,
+        outline: 'none',
+        maxHeight: '90vh',
+        overflow: 'auto'
       }}>
-        <Typography variant="h6" gutterBottom>Реєстрація</Typography>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, textAlign: 'center' }}>
+          Створити акаунт
+        </Typography>
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <TextField label="Ім'я" fullWidth margin="normal" value={name} onChange={(e) => setName(e.target.value)} />
-        <TextField label="Email" type="email" fullWidth margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <TextField 
+          label="Ім'я" 
+          fullWidth 
+          margin="normal" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <TextField 
+          label="Email" 
+          type="email" 
+          fullWidth 
+          margin="normal" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)}
+          sx={{ mb: 2 }}
+        />
         <TextField 
             label="Пароль" 
             type="password" 
-            fullWidth margin="normal" 
+            fullWidth 
+            margin="normal" 
             value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ mb: 2 }}
         />
         <TextField 
             label="Повтор паролю" 
             type="password" 
-            fullWidth margin="normal" 
+            fullWidth 
+            margin="normal" 
             value={passwordConfirmation} 
             onChange={(e) => setPasswordConfirmation(e.target.value)} 
             onKeyDown={(e) => {
                 if (e.key === 'Enter' && !isSubmitting) handleSubmit();
             }}
+            sx={{ mb: 3 }}
         />
         <Button 
           variant="contained" 
           fullWidth 
           onClick={handleSubmit} 
           disabled={isSubmitting}
-          sx={{ mt: 2 }}
+          size="large"
+          sx={{ 
+            mt: 2,
+            py: 1.5,
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            boxShadow: 3,
+            '&:hover': {
+              boxShadow: 5
+            }
+          }}
         >
           {isSubmitting ? 'Завантаження...' : 'Зареєструватися'}
         </Button>

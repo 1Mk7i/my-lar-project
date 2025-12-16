@@ -2,13 +2,14 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Comment, PaginatedResponse } from "@/types";
 import { Box, Typography, CircularProgress, Alert, Pagination, Snackbar } from "@mui/material";
 import api from "@/lib/api";
-import CommentCard from "./CommentCard"; 
+import CommentCard from "./CommentCard";
+import CommentForm from "./CommentForm";
+import ConfirmDialog from "../common/ConfirmDialog";
 import { useAuth } from "@/context/AuthContext"; 
-import CommentForm from "./CommentForm"; 
 
 interface CommentSectionProps {
     bookId: number | string;
@@ -128,20 +129,29 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
         }
     };
 
+    const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; commentId: number | null }>({ 
+        open: false, 
+        commentId: null 
+    });
+
     /**
      * Видалення коментаря
      */
-    const handleDelete = async (commentId: number) => {
-        if (!window.confirm("Ви впевнені, що хочете видалити цей коментар?")) {
-            return;
-        }
+    const handleDeleteClick = (commentId: number) => {
+        setDeleteConfirm({ open: true, commentId });
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteConfirm.commentId) return;
+        const commentId = deleteConfirm.commentId;
+        setDeleteConfirm({ open: false, commentId: null });
+
         if (!token) {
             setSnackbar({ open: true, message: "Помилка автентифікації при видаленні.", severity: "error" });
             return;
         }
 
         try {
-            // 🚩 ВИПРАВЛЕННЯ 401: Явно передаємо токен авторизації
             await api.delete(
                 `/books/${bookId}/comments/${commentId}`,
                 {
@@ -153,11 +163,9 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
             
             setComments(prev => prev.filter(c => c.id !== commentId));
             
-            // Якщо видалено останній коментар на сторінці (крім першої), переходимо на попередню
             if (comments.length === 1 && pagination.current_page > 1) {
                 fetchComments(pagination.current_page - 1);
             } else {
-                // Інакше оновлюємо поточну сторінку (щоб оновити пагінацію, якщо потрібно)
                 fetchComments(pagination.current_page);
             }
             
@@ -176,7 +184,19 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
     
     return (
         <Box sx={{ mt: 5 }}>
-            <Typography variant="h4" component="h2" gutterBottom>
+            <Typography 
+                variant="h4" 
+                component="h2" 
+                gutterBottom
+                sx={{
+                    fontWeight: 'bold',
+                    color: 'primary.main',
+                    mb: 3,
+                    pb: 2,
+                    borderBottom: '2px solid',
+                    borderColor: 'primary.main'
+                }}
+            >
                 Коментарі та відгуки ({pagination.total})
             </Typography>
 
@@ -209,7 +229,7 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
                         comment={comment} 
                         currentUserId={currentUserId}
                         currentUserRoleId={currentUserRoleId}
-                        onDelete={handleDelete} 
+                        onDelete={handleDeleteClick} 
                         onUpdate={handleUpdate} 
                     />
                 ))}
@@ -233,6 +253,18 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+
+            {/* Модалка підтвердження видалення */}
+            <ConfirmDialog
+                open={deleteConfirm.open}
+                title="Видалити коментар?"
+                message="Ви впевнені, що хочете видалити цей коментар? Цю дію неможливо скасувати."
+                confirmText="Видалити"
+                cancelText="Скасувати"
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setDeleteConfirm({ open: false, commentId: null })}
+                severity="error"
+            />
         </Box>
     );
 }
