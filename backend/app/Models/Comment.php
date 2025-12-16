@@ -10,15 +10,29 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'book_id', 'content'];
+    protected $fillable = [
+        'user_id', 
+        'book_id', 
+        'content', 
+        'rating', // Залишаємо рейтинг
+        // 'parent_id' - ВИДАЛЕНО
+    ];
 
+    /**
+     * Коментар належить користувачеві.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Коментар належить книзі.
+     */
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
     }
+    
+    // ЗВ'ЯЗКИ ДЛЯ ІЄРАРХІЇ КОМЕНТАРІВ ВИДАЛЕНО
 }

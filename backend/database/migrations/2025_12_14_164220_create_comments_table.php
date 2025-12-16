@@ -16,8 +16,14 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
             $table->text('content');
+            
+            // 🚩 ДОДАНО: Поле для рейтингу (1-5 зірок), може бути NULL
+            $table->unsignedTinyInteger('rating')->nullable();
+            
             $table->boolean('is_blocked')->default(false);
             $table->timestamps();
+            
+            // 🚩 ВИДАЛЕНО: 'parent_id' згідно з вашим запитом
         });
     }
 

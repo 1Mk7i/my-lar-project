@@ -77,13 +77,29 @@ class DatabaseSeeder extends Seeder
         }
 
         // 9. Comments
+        // 🚩 ВИПРАВЛЕНО: Створюємо 40-60 коментарів, випадково обираючи користувача та книгу
+        $allUsers = User::all();
+        $allBooks = Book::all();
+        $numberOfComments = rand(40, 60);
+
+        for ($i = 0; $i < $numberOfComments; $i++) {
+            Comment::factory()->create([
+                'user_id' => $allUsers->random()->id,
+                'book_id' => $allBooks->random()->id,
+                // Фабрика сама додасть випадковий 'rating' та 'content'
+            ]);
+        }
+        
+        /* // Альтернативний (ваш попередній) спосіб, але з додаванням rating:
         foreach ($users as $user) {
             foreach ($books->random(rand(0,5)) as $book) {
                 Comment::factory()->create([
                     'user_id' => $user->id,
                     'book_id' => $book->id,
+                    // Додавання rating не потрібне, якщо ми використовуємо логіку фабрики.
                 ]);
             }
         }
+        */
     }
 }

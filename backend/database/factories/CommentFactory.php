@@ -13,10 +13,17 @@ class CommentFactory extends Factory
 
     public function definition(): array
     {
+        // 50% шанс отримати null (без оцінки) або випадкове число від 1 до 5
+        $rating = $this->faker->randomFloat(0, 0, 1) < 0.5 
+            ? null 
+            : $this->faker->numberBetween(1, 5);
+
         return [
-            'user_id' => User::inRandomOrder()->first()->id ?? 1,
-            'book_id' => Book::inRandomOrder()->first()->id ?? 1,
+            // Якщо user_id/book_id не передано, обираємо випадково
+            'user_id' => User::inRandomOrder()->first()->id ?? User::factory(), 
+            'book_id' => Book::inRandomOrder()->first()->id ?? Book::factory(),
             'content' => $this->faker->paragraph(),
+            'rating' => $rating, 
         ];
     }
 }

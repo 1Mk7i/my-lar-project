@@ -6,8 +6,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User } from '@/types'; 
 import api from '@/lib/api'; 
 
-// --- 1. Визначення типів ---
+const isServer = typeof window === 'undefined';
 
+// --- 1. Визначення типів ---
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -16,11 +17,10 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
-  isAuthInitialized: boolean; // Вказує, чи LocalStorage прочитано
+  isAuthInitialized: boolean; 
 }
 
 // --- 2. Створення Context ---
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // --- 3. Провайдер Context ---
@@ -29,51 +29,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
+  // Починаємо з false, і встановлюємо true тільки після завершення клієнтської ініціалізації
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false); 
 
   // Ініціалізація: Завантаження токена та користувача з Local Storage
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('user');
+    if (!isServer) {
+        const storedToken = localStorage.getItem('authToken');
+        const storedUser = localStorage.getItem('user');
 
-    if (storedToken) {
-      setToken(storedToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-      
-      if (storedUser) {
-        try {
-            setUser(JSON.parse(storedUser));
-        } catch (e) {
-            console.error("Failed to parse stored user data:", e);
-            // Якщо не вдалося розібрати, очищаємо все
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('user');
+        if (storedToken) {
+            setToken(storedToken);
+            api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+            
+            if (storedUser) {
+                try {
+                    setUser(JSON.parse(storedUser));
+                } catch (e) {
+                    console.error("Failed to parse stored user data:", e);
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
+                    delete api.defaults.headers.common['Authorization'];
+                }
+            }
         }
-      }
     }
     
-    // Встановлюємо ініціалізацію в true після того, як Local Storage прочитано
+    // Встановлюємо ініціалізацію в true, незалежно від того, чи знайшли ми токен,
+    // це дозволяє компонентам, як-от Header, рендерити фінальний стан.
     setIsAuthInitialized(true); 
   }, []);
 
-  // Оновлення Axios та Local Storage при зміні токена/користувача
+  // ЛОГІКА ТОКЕНА: Оновлення Local Storage та Axios при зміні стану
   useEffect(() => {
+    // Виконуємо лише після ініціалізації та лише на клієнті
+    if (!isAuthInitialized || isServer) return; 
+
     if (token) {
       localStorage.setItem('authToken', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`; 
     } else {
       localStorage.removeItem('authToken');
       delete api.defaults.headers.common['Authorization'];
     }
     
     if (user) {
-        // Зберігаємо повний об'єкт користувача
         localStorage.setItem('user', JSON.stringify(user)); 
     } else {
         localStorage.removeItem('user');
     }
     
-  }, [token, user]);
+  }, [token, user, isAuthInitialized]);
 
 
   // --- Логіка ВХОДУ ---
@@ -84,7 +90,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const newToken = response.data.token;
       
-      // Забезпечуємо, що ми беремо повні дані з бекенду (включаючи роль: 3)
       const userData: User = { 
           ...response.data.user,
           role: response.data.user.role || { id: 2, name: 'User' } 
@@ -150,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={contextValue}>
+      {/* 🚩 ВИПРАВЛЕНО: Завжди рендеримо children для уникнення Hydration Mismatch */}
       {children}
     </AuthContext.Provider>
   );
