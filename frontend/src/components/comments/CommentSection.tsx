@@ -16,7 +16,6 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ bookId }: CommentSectionProps) {
-    // 🚩 Отримуємо user та token з контексту
     const { user, token } = useAuth(); 
     
     const [comments, setComments] = useState<Comment[]>([]);
@@ -71,7 +70,6 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
         }
         setCreateLoading(true);
         try {
-            // 🚩 ВИПРАВЛЕННЯ 401: Явно передаємо токен авторизації
             const res = await api.post(
                 `/books/${bookId}/comments`, 
                 { content, rating },
@@ -106,7 +104,6 @@ export default function CommentSection({ bookId }: CommentSectionProps) {
     const handleUpdate = async (commentId: number, content: string, rating: number | null): Promise<void> => {
         if (!token) throw new Error("Відсутній токен автентифікації.");
         try {
-             // 🚩 ВИПРАВЛЕННЯ 401: Явно передаємо токен авторизації
             const res = await api.put(
                 `/books/${bookId}/comments/${commentId}`, 
                 { content, rating },

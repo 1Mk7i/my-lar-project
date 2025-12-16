@@ -44,7 +44,6 @@ export interface Book {
   is_blocked: boolean;
 }
 
-// 🚩 НОВИЙ ТИП: Модель коментаря
 export interface Comment {
     id: number;
     user_id: number;
@@ -58,7 +57,6 @@ export interface Comment {
     user: User; 
 }
 
-// 🚩 НОВИЙ ТИП: Структура відповіді для пагінованих списків
 export interface PaginatedResponse<T> {
     current_page: number;
     data: T[]; // Масив основних елементів (наприклад, Book[] або Comment[])

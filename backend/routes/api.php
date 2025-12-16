@@ -25,14 +25,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Книги та суміжні ресурси
 Route::get('/books', [BookApiController::class, 'index']);
-// 🚩 ВИПРАВЛЕНО: Змінено {id} на {book} для Route Model Binding
 Route::get('/books/{book}', [BookApiController::class, 'show']); 
 
 Route::get('/genres', [GenreApiController::class, 'index']);
 Route::get('/publishers', [PublisherController::class, 'index']);
 Route::get('/authors', [AuthorController::class, 'index']);
 
-// 🚩 ВИПРАВЛЕНО: Змінено параметр {bookId} на {book}. ЧИТАННЯ коментарів є публічним.
 Route::get('/books/{book}/comments', [CommentController::class, 'index']); 
 
 
@@ -46,13 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Всі методи, крім index і show. Параметр тут буде {book}.
     Route::apiResource('books', BookApiController::class)->except(['index', 'show']);
     
-    // 🚩 СТВОРЕННЯ, ОНОВЛЕННЯ ТА ВИДАЛЕННЯ КОМЕНТАРІВ (ЗАХИЩЕНО)
     
     // POST /books/{book}/comments - Створення
     Route::post('/books/{book}/comments', [CommentController::class, 'store']); 
     
     // PUT /books/{book}/comments/{comment} - Оновлення 
-    // 🚩 Змінено {bookId} -> {book} та {commentId} -> {comment}
     Route::put('/books/{book}/comments/{comment}', [CommentController::class, 'update']); 
     
     // DELETE /books/{book}/comments/{comment} - Видалення

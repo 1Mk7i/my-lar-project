@@ -29,7 +29,6 @@ export default function Cart() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchCart = useCallback(async () => {
-    // 🚩 ПЕРЕВІРКА: Не робимо запит, якщо токена ще немає
     if (!token) {
         setLoading(false);
         return;

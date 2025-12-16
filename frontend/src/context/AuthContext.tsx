@@ -157,7 +157,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {/* 🚩 ВИПРАВЛЕНО: Завжди рендеримо children для уникнення Hydration Mismatch */}
       {children}
     </AuthContext.Provider>
   );

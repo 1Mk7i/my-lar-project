@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne; // 🚩 ВИПРАВЛЕНО: Правильний імпорт
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -31,10 +31,6 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    /**
-     * Користувач може мати один профіль автора (one-to-one).
-     * 🚩 ВИПРАВЛЕНО: Тип повернення змінено на HasOne.
-     */
     public function author(): HasOne 
     {
         return $this->hasOne(Author::class);

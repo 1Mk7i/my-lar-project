@@ -6,14 +6,14 @@ import {
 import { 
     TextField, Button, Box, Grid, Select, MenuItem, 
     InputLabel, FormControl, Alert, Checkbox, FormControlLabel, 
-    FormGroup, Collapse, IconButton, Typography, Stack // 🚩 ІМПОРТ STACK
+    FormGroup, Collapse, IconButton, Typography, Stack
 } from "@mui/material";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import DeleteIcon from '@mui/icons-material/Delete'; // 🚩 ІМПОРТ ІКОНКИ ВИДАЛЕННЯ
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface EditBookFormProps {
     initialData: Book;
@@ -93,7 +93,6 @@ export default function EditBookForm({
         }
     };
     
-    // 🚩 НОВА ФУНКЦІЯ: ВИДАЛЕННЯ КНИГИ
     const handleDelete = async () => {
         if (!window.confirm('Ви впевнені, що хочете видалити цю книгу? Цю дію неможливо скасувати.')) {
             return;
@@ -240,7 +239,7 @@ export default function EditBookForm({
                     />
                 </GridItem>
                 
-                {/* 🚩 Кнопки Зберегти та Видалити */}
+                {/* Кнопки Зберегти та Видалити */}
                 <GridItem xs={12}>
                     <Stack direction="row" spacing={2} justifyContent="flex-end"> 
                         

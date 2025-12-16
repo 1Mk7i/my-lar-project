@@ -22,7 +22,7 @@ const MAX_LINES = 3;
 
 export default function CommentCard({ comment, currentUserId, currentUserRoleId, onDelete, onUpdate }: CommentCardProps) {
     const [expanded, setExpanded] = useState(false);
-    const [isEditing, setIsEditing] = useState(false); // 🚩 Стан редагування
+    const [isEditing, setIsEditing] = useState(false);
     const [updateLoading, setUpdateLoading] = useState(false); // Стан завантаження оновлення
     
     const user = comment.user;

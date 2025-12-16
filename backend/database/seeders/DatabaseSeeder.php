@@ -77,7 +77,6 @@ class DatabaseSeeder extends Seeder
         }
 
         // 9. Comments
-        // 🚩 ВИПРАВЛЕНО: Створюємо 40-60 коментарів, випадково обираючи користувача та книгу
         $allUsers = User::all();
         $allBooks = Book::all();
         $numberOfComments = rand(40, 60);

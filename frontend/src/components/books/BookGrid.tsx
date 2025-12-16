@@ -21,23 +21,17 @@ export default function BookGrid({ books }: BookGridProps) {
     } 
 
     return (
-        // Використовуємо Grid Container (без змін)
         <Grid container display="flex" justifyContent="center" spacing={4}>
             {booksArray.map(book => (
-                // 🚩 ВИПРАВЛЕННЯ КОНФЛІКТУ: 
-                // Використовуємо Box, щоб він діяв як Grid item.
-                // Властивості width та padding імітують поведінку Grid item, 
-                // але уникають помилки TypeScript у Grid.
                 <Box 
                     key={book.id}
-                    // Властивості адаптивності, які імітують Grid item
                     sx={{
-                        padding: 2, // Відступ 4 одиниці (як spacing={4})
+                        padding: 2,
                         width: {
                             xs: '100%',
                             sm: '50%',
                             md: '33.33%',
-                            lg: '25%', // 4 картки в рядок
+                            lg: '25%',
                         },
                     }}
                 >
